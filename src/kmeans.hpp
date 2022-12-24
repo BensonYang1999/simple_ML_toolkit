@@ -14,6 +14,7 @@ public:
     std::vector<std::vector<double>> center;
     std::vector<int> classes;
     int K;
+    double total_distance;
 
     void load_data(const char *file_data, const int nk)
     {
@@ -111,6 +112,7 @@ public:
         //         std::cout << std::setw(10) << yy * 255 << " ";
         //     std::cout << std::endl;
         // }
+        double old_total_dist = 1e100;
 
         for (int iter = 0; iter < iterations; iter++)
         {
@@ -121,6 +123,7 @@ public:
             // std::cout << "distance generate success" << std::endl;
             // int classes[n_rows];
             double temp_dist = 1e100;
+            total_distance = 0.0;
             for (int i = 0; i < n_rows; i++)
             {
                 temp_dist = 1e100;
@@ -136,6 +139,15 @@ public:
                         classes[i] = k;
                     }
                 }
+                total_distance += temp_dist;
+            }
+
+            if (total_distance < old_total_dist)
+                old_total_dist = total_distance;
+            else if (total_distance - old_total_dist < 1)
+            {
+                std::cout << "Early stop in iteration " << iter << std::endl;
+                break;
             }
             // std::cout << "find nearest center" << std::endl;
 
