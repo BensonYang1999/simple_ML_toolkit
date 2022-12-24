@@ -1,5 +1,6 @@
 #pragma once
 #include "model.hpp"
+#include <algorithm>
 
 class Log_regression : public Model
 {
@@ -43,7 +44,7 @@ public:
         {
             for (auto j : i)
             {
-                data.push_back(j / 255);
+                data.push_back(j);
             }
         }
         // for (auto x : data)
@@ -104,7 +105,7 @@ public:
         loaded = true;
     }
 
-    void train()
+    void train(const int iterations)
     {
         if (!loaded)
         {
@@ -112,11 +113,13 @@ public:
             return;
         }
 
-        for (int i = 0; i < n_cls; i++)
-            for (int j = 0; j < n_cols; j++)
-                weight.push_back(0.0); // n_cls * n_cols
+        // for (int i = 0; i < n_cls; i++)
+        //     for (int j = 0; j < n_cols; j++)
+        //         weight.push_back(0.0); // n_cls * n_cols
 
-        for (int i = 0; i < 50; i++)
+        weight.assign(n_cls * n_cols, 0.0); // n_cls * n_cols
+
+        for (int i = 0; i < iterations; i++)
         {
             std::vector<double> train_a(n_cls * n_rows, 0.0);
             cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, n_cls, n_rows, n_cols, 1.0,
@@ -128,28 +131,30 @@ public:
             //     std::cout << x << " ";
             // std::cout << std::endl;
 
-            std::vector<double> a_exp;
-            for (auto x : train_a)
-            {
-                a_exp.push_back(exp(x));
-            }
+            std::vector<double> a_exp(n_cls * n_rows);
+            for (int i = 0; i < train_a.size(); i++)
+                a_exp[i] = exp(train_a[i]);
+
             std::vector<double> train_y = a_exp; // n_cls * n_rows
             for (int i = 0; i < n_rows; i++)
             {
                 double exp_sum = 0.0;
                 for (int j = 0; j < n_cls; j++)
                     exp_sum += a_exp[j * n_rows + i];
+                // std::cout << exp_sum << " ";
                 for (int j = 0; j < n_cls; j++)
                     train_y[j * n_rows + i] /= exp_sum;
             }
+            // std::cout << "\n\n";
             // std::cout << "testpoint 2\n";
             // for (auto x : train_y)
             //     std::cout << x << " ";
             // std::cout << std::endl;
 
-            std::vector<double> diff; // n_cls * n_rows
-            for (int i = 0; i < train_y.size(); i++)
-                diff.push_back(train_y[i] - target[i]);
+            std::vector<double> diff(n_cls * n_rows); // n_cls * n_rows
+            // for (int i = 0; i < train_y.size(); i++)
+            //     diff[i] = train_y[i] - target[i];
+            std::transform(train_y.begin(), train_y.end(), target.begin(), diff.begin(), std::minus<double>());
 
             std::vector<double> gradient(n_cls * n_cols, 0.0);
             cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n_cls, n_cols, n_rows, 1.0,
@@ -162,9 +167,7 @@ public:
             // std::cout << std::endl;
 
             for (int i = 0; i < weight.size(); i++)
-            {
                 weight[i] -= 0.0005 * gradient[i];
-            }
 
             // for (auto x : weight)
             //     std::cout << x << " ";
@@ -185,53 +188,8 @@ public:
             return std::vector<int>();
         }
 
-        std::vector<double> test_a(n_cls * n_rows);
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, n_cls, n_rows, n_cols, 1.0,
-                    weight.data(), n_cols,
-                    data.data(), n_cols, 0.0,
-                    test_a.data(), n_rows);
+        std::vector<int> pred = test_core(data);
 
-        std::vector<double> test_a_exp; // n_cls * n_rows
-        for (auto x : test_a)
-            test_a_exp.push_back(exp(x));
-
-        std::vector<double> test_y = test_a_exp; // n_cls * n_rows
-        for (int i = 0; i < n_rows; i++)
-        {
-            double exp_sum = 0.0;
-            for (int j = 0; j < n_cls; j++)
-                exp_sum += test_a_exp[j * n_rows + i];
-            for (int j = 0; j < n_cls; j++)
-                test_y[j * n_rows + i] /= exp_sum;
-        }
-
-        // for (auto x : test_y)
-        //     std::cout << x << " ";
-        // std::cout << std::endl;
-
-        std::vector<int> pred;
-        double pred_temp;
-        int idx_temp;
-        for (int i = 0; i < n_rows; i++) // n_cls * n_rows
-        {
-            pred_temp = 0.0;
-            idx_temp = 0;
-            for (int j = 0; j < n_cls; j++)
-            {
-                if (test_y[j * n_rows + i] > pred_temp)
-                {
-                    idx_temp = j;
-                    pred_temp = test_y[j * n_rows + i];
-                }
-            }
-            pred.push_back(idx_temp);
-        }
-        // std::cout << std::endl;
-
-        // std::cout << "testing result:" << std::endl;
-        // for (auto x : pred)
-        //     std::cout << x << " ";
-        // std::cout << std::endl;
         std::cout << "Testing success!" << std::endl;
         return pred;
     }
@@ -249,54 +207,52 @@ public:
             return std::vector<int>();
         }
 
-        std::vector<double> test_a(n_cls * n_rows);
-        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, n_cls, n_rows, n_cols, 1.0,
-                    weight.data(), n_cols,
-                    data.data(), n_cols, 0.0,
-                    test_a.data(), n_rows);
+        std::vector<int> pred = test_core(test_data);
 
-        std::vector<double> test_a_exp; // n_cls * n_rows
+        std::cout << "Testing success!" << std::endl;
+        return pred;
+    }
+
+    std::vector<int>test_core(const std::vector<double> &test_data)
+    {
+        int n_rows_test = (int)(test_data.size() / n_cols);
+        std::vector<double> test_a(n_cls * n_rows_test);
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasTrans, n_cls, n_rows_test, n_cols, 1.0,
+                    weight.data(), n_cols,
+                    test_data.data(), n_cols, 0.0,
+                    test_a.data(), n_rows_test);
+
+        std::vector<double> test_a_exp; // n_cls * n_rows_test
         for (auto x : test_a)
             test_a_exp.push_back(exp(x));
 
-        std::vector<double> test_y = test_a_exp; // n_cls * n_rows
-        for (int i = 0; i < n_rows; i++)
+        std::vector<double> test_y = test_a_exp; // n_cls * n_rows_test
+        for (int i = 0; i < n_rows_test; i++)
         {
             double exp_sum = 0.0;
             for (int j = 0; j < n_cls; j++)
-                exp_sum += test_a_exp[j * n_rows + i];
+                exp_sum += test_a_exp[j * n_rows_test + i];
             for (int j = 0; j < n_cls; j++)
-                test_y[j * n_rows + i] /= exp_sum;
+                test_y[j * n_rows_test + i] /= exp_sum;
         }
-
-        // for (auto x : test_y)
-        //     std::cout << x << " ";
-        // std::cout << std::endl;
 
         std::vector<int> pred;
         double pred_temp;
         int idx_temp;
-        for (int i = 0; i < n_rows; i++) // n_cls * n_rows
+        for (int i = 0; i < n_rows_test; i++) // n_cls * n_rows_test
         {
             pred_temp = 0.0;
             idx_temp = 0;
             for (int j = 0; j < n_cls; j++)
             {
-                if (test_y[j * n_rows + i] > pred_temp)
+                if (test_y[j * n_rows_test + i] > pred_temp)
                 {
                     idx_temp = j;
-                    pred_temp = test_y[j * n_rows + i];
+                    pred_temp = test_y[j * n_rows_test + i];
                 }
             }
             pred.push_back(idx_temp);
         }
-        // std::cout << std::endl;
-
-        // std::cout << "testing result:" << std::endl;
-        // for (auto x : pred)
-        //     std::cout << x << " ";
-        // std::cout << std::endl;
-        std::cout << "Testing success!" << std::endl;
         return pred;
     }
 

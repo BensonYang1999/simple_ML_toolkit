@@ -151,8 +151,9 @@ public:
         // std::cout << std::endl;
 
         // weght(n_cols * 1, 0.0); // n_cols * 1
-        for (int t = 0; t < n_cols; t++)
-            weight.push_back(0.0); // n_cols * 1
+        // for (int t = 0; t < n_cols; t++)
+        //     weight.push_back(0.0); // n_cols * 1
+        weight.assign(n_cols, 0.0); // n_cols * 1
         cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, n_cols, 1, n_rows, 1.0,
                     phi_s3.data(), n_rows,
                     target.data(), 1, 0.0,

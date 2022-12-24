@@ -58,7 +58,7 @@ public:
         n_cols = temp_data[0].size();
         K = nk;
         // std::cout << "data size: " << n_rows << " * " << n_cols << std::endl;
-        std::cout << "groups: " << K << std::endl;
+        // std::cout << "groups: " << K << std::endl;
 
         classes.resize(n_rows);
 
@@ -103,7 +103,6 @@ public:
                 point[j] = data[idx * n_cols + j];
             center.push_back(point);
         }
-        std::cout << center.size() << std::endl;
         // test center
         // std::cout << "Random center before training" << std::endl;
         // for (auto xx : center)
