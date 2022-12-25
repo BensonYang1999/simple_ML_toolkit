@@ -90,7 +90,7 @@ public:
         // std::cout << std::endl;
 
         // for (auto x : data) std::cout<< x << " ";
-        std::cout << "Loading data success!" << std::endl;
+        // std::cout << "Loading data success!" << std::endl;
         loaded = true;
     }
 
@@ -101,7 +101,7 @@ public:
         n_rows = y.size();
         n_cols = (int)(x.size() / y.size());
         n_cls = ncls;
-        std::cout << "Loading data success!" << std::endl;
+        // std::cout << "Loading data success!" << std::endl;
         loaded = true;
     }
 
@@ -176,7 +176,7 @@ public:
         // for (auto x : weight)
         //     std::cout << x << " ";
         // std::cout << std::endl;
-        std::cout << "Training success!" << std::endl;
+        // std::cout << "Training success!" << std::endl;
         trained = true;
     }
 
@@ -190,7 +190,7 @@ public:
 
         std::vector<int> pred = test_core(data);
 
-        std::cout << "Testing success!" << std::endl;
+        // std::cout << "Testing success!" << std::endl;
         return pred;
     }
 
@@ -209,7 +209,7 @@ public:
 
         std::vector<int> pred = test_core(test_data);
 
-        std::cout << "Testing success!" << std::endl;
+        // std::cout << "Testing success!" << std::endl;
         return pred;
     }
 

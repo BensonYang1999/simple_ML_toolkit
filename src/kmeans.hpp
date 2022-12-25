@@ -63,7 +63,7 @@ public:
 
         classes.resize(n_rows);
 
-        std::cout << "Loading data success!" << std::endl;
+        // std::cout << "Loading data success!" << std::endl;
         loaded = true;
     }
 
@@ -74,7 +74,7 @@ public:
         n_cols = (int)(x.size() / nrows);
         K = nk;
         classes.resize(n_rows);
-        std::cout << "Loading data success!" << std::endl;
+        // std::cout << "Loading data success!" << std::endl;
         loaded = true;
     }
 
@@ -175,7 +175,7 @@ public:
         //     std::cout << std::endl;
         // }
 
-        std::cout << "Training success!" << std::endl;
+        // std::cout << "Training success!" << std::endl;
         trained = true;
     }
 

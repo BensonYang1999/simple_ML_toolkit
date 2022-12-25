@@ -14,15 +14,13 @@ PYFLAGS = -lpython3.8
 
 main:
 	$(CXX) $(CXXFLAGS) -I$(MKLINCLUDE) -I./ src/main.cpp -o a.out $(MKLFLAGS)
-temp:
-	$(CXX) $(CXXFLAGS) -I$(MKLINCLUDE) temp.cpp -o temp.out $(MKLFLAGS)
-	./temp.out
 py:
 	$(CXX) $(CXXFLAGS) -shared -fPIC -I$(MKLINCLUDE) -I$(PYINCLUDE) -I./src `python3 -m pybind11 --includes` pytrans/py.cpp -o simpleml`python3-config --extension-suffix` $(PYFLAGS) $(MKLFLAGS)
+	cp *.so tests/
 
 intel:
 	source /opt/intel/oneapi/setvars.sh intel64 --force && $(CXX) $(CXXFLAGS) -I$(IMKLINCLUDE) -I./ src/main.cpp -o a.out $(IMKLFLAGS)
 # $(CXX) $(CXXFLAGS) -I$(IMKLINCLUDE) -I./ src/main.cpp -o a.out $(IMKLFLAGS)
-
 intelpy:
 	source /opt/intel/oneapi/setvars.sh intel64 --force && $(CXX) $(CXXFLAGS) -shared -fPIC -I$(IMKLINCLUDE) -I$(PYINCLUDE) -I./src `python3 -m pybind11 --includes` pytrans/py.cpp -o simpleml`python3-config --extension-suffix` $(PYFLAGS) $(IMKLFLAGS)
+	cp *.so tests/

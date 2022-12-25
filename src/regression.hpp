@@ -61,7 +61,7 @@ public:
 
         // for (auto x : data) std::cout<< x << " ";
         // std::cout << data.size() << std::endl;
-        std::cout << "Loading data success!" << std::endl;
+        // std::cout << "Loading data success!" << std::endl;
         loaded = true;
     }
 
@@ -71,7 +71,7 @@ public:
         target = y;
         n_rows = y.size();
         n_cols = (int)(x.size() / y.size());
-        std::cout << "Loading data success!" << std::endl;
+        // std::cout << "Loading data success!" << std::endl;
         loaded = true;
     }
 
@@ -163,7 +163,7 @@ public:
         //     std::cout << x << " ";
         // std::cout << std::endl;
 
-        std::cout << "Training success!" << std::endl;
+        // std::cout << "Training success!" << std::endl;
         trained = true;
     }
 
@@ -183,7 +183,7 @@ public:
         // for (auto x : test_y)
         //     std::cout << x << " ";
         // std::cout << std::endl;
-        std::cout << "Testing success!" << std::endl;
+        // std::cout << "Testing success!" << std::endl;
         return test_y;
     }
 
@@ -209,7 +209,7 @@ public:
         // for (auto x : test_y)
         //     std::cout << x << " ";
         // std::cout << std::endl;
-        std::cout << "Testing success!" << std::endl;
+        // std::cout << "Testing success!" << std::endl;
         return test_y;
     }
 
