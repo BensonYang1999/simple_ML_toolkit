@@ -179,6 +179,44 @@ public:
         trained = true;
     }
 
+    std::vector<int> test(const std::vector<double> &test_data)
+    {
+        if (!trained)
+        {
+            std::cout << "Model is not trained!\n";
+            return std::vector<int>();
+        }
+        if (test_data.size() % n_cols != 0)
+        {
+            std::cout << "incorrect data matrix size!!\n";
+            return std::vector<int>();
+        }
+
+        int n_rows_test = (int)(test_data.size() / n_cols);
+        std::vector<std::vector<double>> distance(n_rows_test, std::vector<double>(K, 0));
+        std::vector<int> test_class(n_rows_test, 0);
+        double temp_dist = 1e100;
+        for (int i = 0; i < n_rows_test; i++)
+        {
+            temp_dist = 1e100;
+            for (int k = 0; k < K; k++)
+            {
+                for (int j = 0; j < n_cols; j++)
+                {
+                    distance[i][k] += pow(test_data[i * n_cols + j] - center[k][j], 2.0);
+                }
+                if (distance[i][k] < temp_dist)
+                {
+                    temp_dist = distance[i][k];
+                    test_class[i] = k;
+                }
+            }
+        }
+
+        // std::cout << "Testing success!" << std::endl;
+        return test_class;
+    }
+
     std::vector<std::vector<double>> get_center() const { return center; }
     std::vector<int> get_classes() const { return classes; }
 };

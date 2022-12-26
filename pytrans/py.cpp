@@ -33,6 +33,7 @@ PYBIND11_MODULE(simpleml, m)
         .def("load_data", static_cast<void (Kmeans::*)(const char *, const int)>(&Kmeans::load_data))
         .def("load_data", static_cast<void (Kmeans::*)(std::vector<double> const &, const int, const int)>(&Kmeans::load_data))
         .def("train", &Kmeans::train)
+        .def("test", static_cast<std::vector<int> (Kmeans::*)(std::vector<double> const &)>(&Kmeans::test))
         .def_property_readonly("center", &Kmeans::get_center)
         .def_property_readonly("classes", &Kmeans::get_classes);
         
